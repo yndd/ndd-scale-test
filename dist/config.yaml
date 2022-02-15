@@ -1,0 +1,93 @@
+project_name: ndd-scale-test
+release:
+  name_template: '{{.Tag}}'
+milestones:
+- name_template: '{{ .Tag }}'
+scoop:
+  name: ndd-scale-test
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  commit_msg_template: Scoop update for {{ .ProjectName }} version {{ .Tag }}
+builds:
+- id: ndd-scale-test
+  goos:
+  - linux
+  goarch:
+  - amd64
+  goarm:
+  - "6"
+  gomips:
+  - hardfloat
+  targets:
+  - linux_amd64
+  dir: .
+  main: ./cmd/
+  ldflags:
+  - -s -w -X github.com/yndd/ndd-tools/cmd.version={{.Version}} -X github.com/yndd/ndd-tools/cmd.commit={{.ShortCommit}}
+    -X github.com/yndd/ndd-tools/cmd.date={{.Date}}
+  binary: ndd-scale-test
+  env:
+  - CGO_ENABLED=0
+  lang: go
+  gobinary: go
+archives:
+- id: default
+  builds:
+  - ndd-scale-test
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm
+    }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
+  replacements:
+    linux: Linux
+  format: tar.gz
+  files:
+  - src: license*
+  - src: LICENSE*
+  - src: readme*
+  - src: README*
+  - src: changelog*
+  - src: CHANGELOG*
+  allow_different_binary_count: false
+nfpms:
+- file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+  package_name: ndd-gen
+  id: ndd-gen
+  builds:
+  - ndd-scale-test
+  formats:
+  - rpm
+  - deb
+  vendor: Nokia
+  maintainer: Wim Henderickx <wim.henderickx@gmail.com>
+  description: "ndd-scale-test generates ndd test templates. \n"
+  license: GNU GPLv3
+  bindir: /usr/bin
+snapshot:
+  name_template: '{{ .Tag }}-next'
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+changelog:
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+  sort: asc
+dist: dist
+env_files:
+  github_token: ~/.config/goreleaser/github_token
+  gitlab_token: ~/.config/goreleaser/gitlab_token
+  gitea_token: ~/.config/goreleaser/gitea_token
+source:
+  name_template: '{{ .ProjectName }}-{{ .Version }}'
+  format: tar.gz
+gomod:
+  gobinary: go
+announce:
+  twitter:
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .GitURL
+      }}/releases/tag/{{ .Tag }}'
+github_urls:
+  download: https://github.com
+gitlab_urls:
+  download: https://gitlab.com

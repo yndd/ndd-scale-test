@@ -1,0 +1,3 @@
+53521e4e7a5939c5ecc57242b4a702220eadf722be70508086c434cb621ae5b4  ndd-scale-test_v0.0.0-next_linux_amd64.rpm
+6366001d7698700c2a728fc85675ec0f4147c43c56b9e002fba5d9f85157990a  ndd-scale-test_v0.0.0-next_linux_amd64.deb
+879d199df39147856aa62d5325140b54c7df15eda3be4396b11ecb1a85936453  ndd-scale-test_v0.0.0-next_Linux_amd64.tar.gz
