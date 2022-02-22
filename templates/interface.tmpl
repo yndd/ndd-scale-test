@@ -1,0 +1,16 @@
+{{- $index := .Index}}
+
+apiVersion: srl.nddp.yndd.io/v1alpha1
+kind: SrlInterface
+metadata:
+  name: int-e1-{{$index}}
+  namespace: default
+spec:
+  active: true
+  networkNodeRef:
+    name: leaf1
+  interface:
+    name: "ethernet-1/{{$index}}"
+    admin-state: "enable"
+    description: "ndd-ethernet-1/{{$index}}"
+    vlan-tagging: true

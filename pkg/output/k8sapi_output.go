@@ -3,9 +3,9 @@ package output
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"path/filepath"
 
+	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -109,7 +109,7 @@ func (k *K8sApiOutput) k8sCreate(b *bytes.Buffer) (*ApiInfos, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("Creating %s of Kind %s in %s\n", apiinfo.obj.GetName(), apiinfo.obj.GetKind(), apiinfo.namespace)
+	log.Infof("Creating %s of kind %s in %s\n", apiinfo.obj.GetName(), apiinfo.obj.GetKind(), apiinfo.namespace)
 	_, err = k.client.Resource(apiinfo.restmapping.Resource).Namespace(apiinfo.namespace).Create(context.TODO(), apiinfo.obj, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
@@ -122,6 +122,8 @@ func (k *K8sApiOutput) k8sDelete(b *bytes.Buffer) error {
 	if err != nil {
 		return err
 	}
+
+	log.Infof("Creating %s of kind %s in %s\n", apiinfo.obj.GetName(), apiinfo.obj.GetKind(), apiinfo.namespace)
 
 	err = k.client.Resource(apiinfo.restmapping.Resource).Namespace(apiinfo.namespace).Delete(context.TODO(), apiinfo.obj.GetName(), metav1.DeleteOptions{})
 	if err != nil {
@@ -137,7 +139,7 @@ func (k *K8sApiOutput) init() error {
 	if k.client != nil {
 		return nil
 	}
-
+	log.Info("Creating new Kubernetes client")
 	kubeconfig := k.kubeconfig
 	if kubeconfig == "" {
 		home := homedir.HomeDir()

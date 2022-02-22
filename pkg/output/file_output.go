@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type FileOutput struct {
@@ -19,7 +21,11 @@ func NewFileOutput(outDir string) *FileOutput {
 }
 
 func (fo *FileOutput) Commit(data *bytes.Buffer, opi *OutputPluginInfo) error {
-	f, err := os.Create(filepath.Join(fo.outDir, "nddtest-"+strconv.Itoa(opi.Index)+".yaml"))
+	filepath := filepath.Join(fo.outDir, "nddtest-"+strconv.Itoa(opi.Index)+".yaml")
+
+	log.Infof("Writing to %s", filepath)
+
+	f, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}

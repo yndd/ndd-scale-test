@@ -3,11 +3,11 @@ package nddscalegen
 import (
 	"bytes"
 
+	log "github.com/sirupsen/logrus"
+
 	"gihub.com/yndd/ndd-scale-test/pkg/generator"
 	"gihub.com/yndd/ndd-scale-test/pkg/output"
 	"github.com/spf13/cobra"
-	"github.com/yndd/ndd-runtime/pkg/logging"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 var (
@@ -25,21 +25,18 @@ var fileCommand = &cobra.Command{
 	//Aliases:      []string{"gen"},
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		zlog := zap.New(zap.UseDevMode(true), zap.JSONEncoder())
-		log := logging.NewLogrLogger(zlog.WithName("nddscalegen"))
-		log.Debug("generate nddscalegen templates ...")
 
 		g, err := generator.NewGenerator(
 			generator.WithIndexes(offset, count),
 			generator.WithTemplate(templateFile),
 		)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
 
 		var data []*bytes.Buffer
 		if data, err = g.Generate(); err != nil {
-			return err
+			log.Fatal(err)
 		}
 
 		outputPlugin := output.NewFileOutput(outputDir)
@@ -47,7 +44,7 @@ var fileCommand = &cobra.Command{
 		for k, v := range data {
 			err = outputPlugin.Commit(v, &output.OutputPluginInfo{Index: k})
 			if err != nil {
-				return err
+				log.Fatal(err)
 			}
 		}
 
@@ -83,21 +80,18 @@ var k8sDeleteCommand = &cobra.Command{
 	Aliases:      []string{"d"},
 	SilenceUsage: false,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		zlog := zap.New(zap.UseDevMode(true), zap.JSONEncoder())
-		log := logging.NewLogrLogger(zlog.WithName("nddscalegen"))
-		log.Debug("generate nddscalegen templates ...")
 
 		g, err := generator.NewGenerator(
 			generator.WithIndexes(offset, count),
 			generator.WithTemplate(templateFile),
 		)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
 
 		var data []*bytes.Buffer
 		if data, err = g.Generate(); err != nil {
-			return err
+			log.Fatal(err)
 		}
 
 		outputPlugin := output.NewK8sOutput(kubeconfig)
@@ -105,7 +99,7 @@ var k8sDeleteCommand = &cobra.Command{
 		for k, v := range data {
 			err = outputPlugin.Delete(v, &output.OutputPluginInfo{Index: k})
 			if err != nil {
-				return err
+				log.Fatal(err)
 			}
 		}
 
@@ -120,21 +114,18 @@ var k8sAddCommand = &cobra.Command{
 	Aliases:      []string{"c"},
 	SilenceUsage: false,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		zlog := zap.New(zap.UseDevMode(true), zap.JSONEncoder())
-		log := logging.NewLogrLogger(zlog.WithName("nddscalegen"))
-		log.Debug("generate nddscalegen templates ...")
 
 		g, err := generator.NewGenerator(
 			generator.WithIndexes(offset, count),
 			generator.WithTemplate(templateFile),
 		)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
 
 		var data []*bytes.Buffer
 		if data, err = g.Generate(); err != nil {
-			return err
+			log.Fatal(err)
 		}
 
 		outputPlugin := output.NewK8sOutput(kubeconfig)
@@ -142,7 +133,7 @@ var k8sAddCommand = &cobra.Command{
 		for k, v := range data {
 			err = outputPlugin.Commit(v, &output.OutputPluginInfo{Index: k})
 			if err != nil {
-				return err
+				log.Fatal(err)
 			}
 		}
 

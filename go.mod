@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.3.0
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/yndd/ndd-runtime v0.2.14
