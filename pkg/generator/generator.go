@@ -1,31 +1,26 @@
 package generator
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"os"
-	"path/filepath"
-	"strconv"
 	"text/template"
 
+	"gihub.com/yndd/ndd-scale-test/pkg/output"
 	"gihub.com/yndd/ndd-scale-test/pkg/templ"
 )
 
 type Generator interface {
 	WithIndexes(o, c int)
 	WithTemplate(t string)
-	WithOutputDir(dir string)
-	Run() error
+
+	Generate() ([]*bytes.Buffer, error)
 }
 
 func WithTemplate(t string) Option {
 	return func(g Generator) {
 		g.WithTemplate(t)
-	}
-}
-
-func WithOutputDir(dir string) Option {
-	return func(g Generator) {
-		g.WithOutputDir(dir)
 	}
 }
 
@@ -55,6 +50,7 @@ type generator struct {
 	templateFile string
 	outputDir    string
 	template     *template.Template
+	outputPlugin output.OutputPlugin
 }
 
 func (g *generator) WithTemplate(t string) {
@@ -68,6 +64,10 @@ func (g *generator) WithOutputDir(dir string) {
 func (g *generator) WithIndexes(o, c int) {
 	g.offset = o
 	g.count = c
+}
+
+func (g *generator) WithOutputPlugin(to output.OutputPlugin) {
+	g.outputPlugin = to
 }
 
 func (g *generator) initTemplates() error {
@@ -91,35 +91,23 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
-func (g *generator) Run() error {
+func (g *generator) Generate() ([]*bytes.Buffer, error) {
+	result := []*bytes.Buffer{}
+
 	for i := g.offset; i <= g.offset+g.count; i++ {
-		if err := g.renderTemplate(i); err != nil {
-			return err
+
+		b := bytes.NewBuffer([]byte{})
+
+		if err := g.renderTemplate(b, i); err != nil {
+			return nil, err
 		}
+		result = append(result, b)
+
 	}
-	return nil
+	return result, nil
 }
 
-func (g *generator) renderTemplate(i int) error {
-	//fmt.Printf("Container FullName %s\n", c.GetFullNameWithRoot())
-
-	f, err := os.Create(filepath.Join(g.outputDir, "nddtest-"+strconv.Itoa(i)+".yaml"))
-	if err != nil {
-		return err
-	}
-
-	if err := g.writeTemplate(f, i); err != nil {
-		return err
-	}
-
-	if err := f.Close(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (g *generator) writeTemplate(f *os.File, i int) error {
+func (g *generator) renderTemplate(f io.Writer, i int) error {
 	s := struct {
 		Index int
 	}{
@@ -129,5 +117,4 @@ func (g *generator) writeTemplate(f *os.File, i int) error {
 		return err
 	}
 	return nil
-
 }
